@@ -1,0 +1,17 @@
+name: Web game checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check the self-contained game
+        run: |
+          node -e "const fs = require('fs'); const html = fs.readFileSync('index.html', 'utf8'); if (!html.includes('<meta name=\"viewport\"') || !html.includes('<canvas')) process.exit(1); const script = html.match(/<script>([\s\S]*?)<\/script>/); if (!script) process.exit(1); fs.writeFileSync('/tmp/ghost-flap.js', script[1]);"
+          node --check /tmp/ghost-flap.js
